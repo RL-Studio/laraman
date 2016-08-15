@@ -15,6 +15,11 @@
         "ramsey/uuid": "^3",
         "illuminate/filesystem": "~5.1",
         "illuminate/support": "~5.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "RLStudio\\Laraman\\": "src/"
+        }
     }
 
 }
