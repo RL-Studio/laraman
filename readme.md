@@ -5,7 +5,7 @@ Have you ever been building a huge API and you're sitting there with Postman to 
 ## Installation
 Install via composer:
 ```
-composer require rl-studio/laraman 
+composer require --dev rl-studio/laraman
 ```
 
 Add the service provider to your `providers` array in `config/app.php`
