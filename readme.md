@@ -10,8 +10,8 @@ composer require --dev rl-studio/laraman
 
 Add the service provider to your `providers` array in `config/app.php`
 
-```
-'RLStudio\Laraman\ServiceProvider',
+```php
+RLStudio\Laraman\ServiceProvider::class,
 ```
 
 That's all!
