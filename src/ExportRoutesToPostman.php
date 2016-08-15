@@ -21,7 +21,7 @@ class ExportRoutesToPostman extends Command
      *
      * @var string
      */
-    protected $description = 'Export all routes to a json file that can be imported in Postman';
+    protected $description = 'Export all routes to a JSON file that can be imported in Postman.';
 
     /**
      * The Laravel router.
@@ -97,7 +97,7 @@ class ExportRoutesToPostman extends Command
         }
 
         if (! $this->files->put($name.'.json', json_encode($routes))) {
-            $this->error('Export failed');
+            $this->error('Export failed.');
         } else {
             $this->info('Routes exported!');
         }
