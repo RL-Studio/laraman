@@ -71,12 +71,12 @@ class ExportRoutesToPostman extends Command
         ];
 
         foreach ($this->router->getRoutes() as $route) {
-            foreach ($route->getMethods() as $method) {
+            foreach ($route->methods as $method) {
                 if ($method == 'HEAD') continue;
                 $routes['item'][] = [
-                    'name' => $method.': '.$route->getPath(),
+                    'name' => $method.': '.$route->uri(),
                     'request' => [
-                        'url' => url($route->getPath()),
+                        'url' => url($route->uri()),
                         'method' => strtoupper($method),
                         'header' => [
                             [
