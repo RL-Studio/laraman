@@ -14,14 +14,14 @@ class ExportRoutesToPostman extends Command
      *
      * @var string
      */
-    protected $signature = 'laraman:export {--name=laraman-export}';
+    protected $signature = 'laraman:export {--name=laraman-export} {--api} {--web} {--port=8000}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Export all routes to a JSON file that can be imported in Postman.';
+    protected $description = 'Export all routes to a json file that can be imported in Postman';
 
     /**
      * The Laravel router.
@@ -57,49 +57,78 @@ class ExportRoutesToPostman extends Command
      */
     public function handle()
     {
-        $name = $this->option('name');
-
-        // Set the base data.
-        $routes = [
-            'variables' => [],
-            'info' => [
-                'name' => $name,
-                '_postman_id' => Uuid::uuid4(),
-                'description' => '',
-                'schema' => 'https://schema.getpostman.com/json/collection/v2.0.0/collection.json',
-            ]
-        ];
-
-        foreach ($this->router->getRoutes() as $route) {
-            foreach ($route->methods as $method) {
-                if ($method == 'HEAD') continue;
-                $routes['item'][] = [
-                    'name' => $method.': '.$route->uri(),
-                    'request' => [
-                        'url' => url($route->uri()),
-                        'method' => strtoupper($method),
-                        'header' => [
-                            [
-                                'key' => 'Content-Type',
-                                'value' => 'application/json',
-                                'description' => ''
-                            ]
-                        ],
-                        'body' => [
-                            'mode' => 'raw',
-                            'raw' => '{\n    \n}'
-                        ],
-                        'description' => '',
-                    ],
-                    'response' => [],
-                ];
-            }
-        }
-
-        if (! $this->files->put($name.'.json', json_encode($routes))) {
-            $this->error('Export failed.');
+        if (!$this->option('api') && !$this->option('web')) {
+            $this->info("Please, specify the type of export with flags.\nYou can use --api or --web.");
         } else {
-            $this->info('Routes exported!');
+            $name = $this->option('name');
+            $port = $this->option('port');
+            // Set the base data.
+            $routes = [
+              'variables' => [],
+              'info' => [
+                  'name' => $name,
+                  '_postman_id' => Uuid::uuid4(),
+                  'description' => '',
+                  'schema' => 'https://schema.getpostman.com/json/collection/v2.0.0/collection.json',
+              ]
+          ];
+
+            foreach ($this->router->getRoutes() as $route) {
+                foreach ($route->methods as $method) {
+                    if ($method == 'HEAD') {
+                        continue;
+                    }
+                    if ($this->option('api') && $route->middleware()[0] == "api") {
+                        $routes['item'][] = [
+                        'name' => $method.' | '.$route->uri(),
+                        'request' => [
+                            'url' => url(':' . $port . '/' . $route->uri()),
+                            'method' => strtoupper($method),
+                            'header' => [
+                                [
+                                    'key' => 'Content-Type',
+                                    'value' => 'application/json',
+                                    'description' => ''
+                                ]
+                            ],
+                            'body' => [
+                                'mode' => 'raw',
+                                'raw' => '{\n    \n}'
+                            ],
+                            'description' => '',
+                        ],
+                        'response' => [],
+                    ];
+                    }
+                    if ($this->option('web') && $route->middleware()[0] == "web") {
+                        $routes['item'][] = [
+                        'name' => $method.' | '.$route->uri(),
+                        'request' => [
+                            'url' => url(':' . $port . '/' . $route->uri()),
+                            'method' => strtoupper($method),
+                            'header' => [
+                                [
+                                    'key' => 'Content-Type',
+                                    'value' => 'text/html',
+                                    'description' => ''
+                                ]
+                            ],
+                            'body' => [
+                                'mode' => 'raw',
+                                'raw' => '{\n    \n}'
+                            ],
+                            'description' => '',
+                        ],
+                        'response' => [],
+                    ];
+                    }
+                }
+            }
+            if (! $this->files->put($name.'.json', json_encode($routes))) {
+                $this->error('Export failed');
+            } else {
+                $this->info('Routes exported!');
+            }
         }
     }
 }
